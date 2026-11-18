@@ -5,7 +5,7 @@ import uuid
 import os
 from typing import Dict, Any, List
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -14,7 +14,16 @@ logger = logging.getLogger("DeskBotRelay")
 app = FastAPI(
     title="DeskBot Central Relay & AI Inspector",
     description="Central server connecting AI orchestrators with endpoint device actuators.",
-    version="1.1.0"
+    version="1.2.0"
+)
+
+# فعال‌سازی CORS برای اتصال کلاینت‌های وب و ویجت‌های دسکتاپ
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ----------------- Device Management & Tool Relay -----------------
@@ -102,6 +111,37 @@ async def execute_tool_on_device(req: CommandRequest):
         device.pending_calls.pop(call_id, None)
         raise HTTPException(status_code=500, detail=str(e))
 
+# ----------------- AI Chat & Intent Assistant -----------------
+class ChatMessage(BaseModel):
+    message: str
+    device_id: str = "default"
+
+@app.post("/api/v1/chat")
+async def chat_with_agent(chat_req: ChatMessage):
+    user_msg = chat_req.message.strip().lower()
+    
+    # موتور تحلیل هوشمند قصد کاربر
+    if any(k in user_msg for k in ["سیستم", "سلامت", "خرید", "کارشناسی", "تست", "باتری", "هارد", "مشخصات"]):
+        return {
+            "reply": "برای بررسی کامل قطعات سخت‌افزاری، سلامت باتری و پایداری سیستم، دستور کارشناسی را اجرا می‌کنم. لطفاً چند لحظه صبر کنید...",
+            "action": "RUN_INSPECTION"
+        }
+    elif any(k in user_msg for k in ["سلام", "درود", "صبح بخیر", "عصر بخیر"]):
+        return {
+            "reply": "سلام و درود! من دستیار هوشمند میز کار شما هستم. می‌توانم سلامت قطعات سیستم شما را کارشناسی کنم، فایل‌ها را بررسی کنم یا کارهای سیستمی شما را در پس‌زمینه انجام دهم. چه کمکی از دستم برمی‌آید؟",
+            "action": "NONE"
+        }
+    elif any(k in user_msg for k in ["کیستی", "چیکار میکنی", "قابلیت", "توانایی"]):
+        return {
+            "reply": "من عامل اجرایی DeskBot هستم! من با مغز هوش مصنوعی سرور ارتباط مستقیم دارم و می‌توانم بدون دخالت در ماوس و کیبورد، کارهای سیستمی، عیب‌یابی ویندوز، بررسی اصالت لپ‌تاپ و مدیریت فایل‌ها را انجام دهم.",
+            "action": "NONE"
+        }
+    else:
+        return {
+            "reply": f"دستور شما «{chat_req.message}» دریافت شد. در حال پردازش در مغز هوش مصنوعی هستم. برای شروع عیب‌یابی یا کارشناسی می‌توانید روی گزینه‌های سریع بالا نیز کلیک کنید.",
+            "action": "NONE"
+        }
+
 # ----------------- AI System Expert Evaluation Engine -----------------
 class SystemTelemetry(BaseModel):
     manufacturer: str = "نامشخص"
@@ -113,7 +153,7 @@ class SystemTelemetry(BaseModel):
     ram_gb: float = 0.0
     ram_slots: int = 1
     gpus: str = "نامشخص"
-    battery_health_percent: float = -1.0 # -1 means desktop / no battery
+    battery_health_percent: float = -1.0
     battery_cycles: Any = "نامشخص"
     disks: List[Dict[str, Any]] = []
     crashes_count: int = 0
@@ -126,7 +166,6 @@ def evaluate_system_intelligence(data: SystemTelemetry) -> Dict[str, Any]:
     cons = []
     warnings = []
 
-    # 1. باتری
     if data.battery_health_percent >= 0:
         if data.battery_health_percent >= 85:
             pros.append(f"سلامت باتری فوق‌العاده ({data.battery_health_percent}٪)")
@@ -140,7 +179,6 @@ def evaluate_system_intelligence(data: SystemTelemetry) -> Dict[str, Any]:
     else:
         pros.append("سیستم دسکتاپ یا اتصال مستقیم به برق (فاقد استهلاک باتری)")
 
-    # 2. رم
     if data.ram_gb >= 16:
         pros.append(f"میزان رم ایده‌آل برای کارهای سنگین و مدرن ({data.ram_gb} GB)")
     elif data.ram_gb >= 8:
@@ -149,7 +187,6 @@ def evaluate_system_intelligence(data: SystemTelemetry) -> Dict[str, Any]:
         score -= 20
         cons.append(f"رم پایین ({data.ram_gb} GB) - احتمال کندی در مالتی‌تسکینگ")
 
-    # 3. پایداری و کرش
     if data.crashes_count == 0:
         pros.append("پایداری سخت‌افزاری عالی (هیچ خاموشی ناگهانی اخیر ثبت نشده)")
     elif data.crashes_count <= 2:
@@ -160,7 +197,6 @@ def evaluate_system_intelligence(data: SystemTelemetry) -> Dict[str, Any]:
         cons.append(f"هشدار جدی: {data.crashes_count} بار خاموشی ناگهانی یا BlueScreen ثبت شده!")
         warnings.append("احتمال ایراد در پاور، رم یا مادربرد وجود دارد.")
 
-    # 4. دیسک‌ها
     has_ssd = False
     for d in data.disks:
         media = str(d.get("media_type", "")).lower()
@@ -179,7 +215,6 @@ def evaluate_system_intelligence(data: SystemTelemetry) -> Dict[str, Any]:
 
     score = max(20, min(100, score))
 
-    # نتیجه‌گیری کارشناسی
     if score >= 85:
         verdict = "دستگاه کاملاً سالم، پایدار و با ارزش خرید بالا ارزیابی می‌شود."
         verdict_badge = "پیشنهاد عالی برای خرید"
