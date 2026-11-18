@@ -33,10 +33,10 @@ try {
     $BatCycle = Get-CimInstance -Namespace root\wmi -ClassName BatteryCycleCount -ErrorAction SilentlyContinue
     
     $BatHealthPercent = -1.0
-    $BatCycles = "دسکتاپ (فاقد باتری)"
+    $BatCycles = "Desktop"
     if ($BatStatic -and $BatFull -and $BatStatic.DesignedCapacity -gt 0) {
         $BatHealthPercent = [math]::Round(($BatFull.FullChargedCapacity / $BatStatic.DesignedCapacity) * 100, 1)
-        $BatCycles = if ($BatCycle.CycleCount) { $BatCycle.CycleCount } else { "نامشخص" }
+        $BatCycles = if ($BatCycle.CycleCount) { "$($BatCycle.CycleCount)" } else { "Unknown" }
     }
 
     # 3. بررسی دیسک‌ها
@@ -46,7 +46,7 @@ try {
         $Hours = if ($Rel -and $Rel.PowerOnHours) { [int]$Rel.PowerOnHours } else { 0 }
         $Wear = if ($Rel -and $Rel.Wear) { [int]$Rel.Wear } else { 0 }
         $DisksList += @{
-            name = $d.FriendlyName
+            name = "$($d.FriendlyName)"
             size_gb = [math]::Round($d.Size/1GB)
             media_type = "$($d.MediaType)"
             power_on_hours = $Hours
@@ -59,31 +59,37 @@ try {
     $UptimeHours = [math]::Round(((Get-Date) - $OS.LastBootUpTime).TotalHours, 1)
 
     # 5. آماده‌سازی بدنه JSON
-    $Payload = @{
-        manufacturer = if ($CS.Manufacturer) { "$($CS.Manufacturer)" } else { "نامشخص" }
-        model = if ($CS.Model) { "$($CS.Model)" } else { "نامشخص" }
-        serial_number = if ($BIOS.SerialNumber) { "$($BIOS.SerialNumber)" } else { "نامشخص" }
-        cpu_name = if ($CPU.Name) { "$($CPU.Name)" } else { "نامشخص" }
+    $DataObj = @{
+        manufacturer = if ($CS.Manufacturer) { "$($CS.Manufacturer)" } else { "Unknown" }
+        model = if ($CS.Model) { "$($CS.Model)" } else { "Unknown" }
+        serial_number = if ($BIOS.SerialNumber) { "$($BIOS.SerialNumber)" } else { "Unknown" }
+        cpu_name = if ($CPU.Name) { "$($CPU.Name)" } else { "Unknown" }
         cpu_cores = if ($CPU.NumberOfCores) { [int]$CPU.NumberOfCores } else { 1 }
         cpu_threads = if ($CPU.NumberOfLogicalProcessors) { [int]$CPU.NumberOfLogicalProcessors } else { 1 }
         ram_gb = [float]$TotalRAM
         ram_slots = if ($RAMModules.Count) { [int]$RAMModules.Count } else { 1 }
-        gpus = if ($GPUs) { "$GPUs" } else { "نامشخص" }
+        gpus = if ($GPUs) { "$GPUs" } else { "Unknown" }
         battery_health_percent = [float]$BatHealthPercent
         battery_cycles = "$BatCycles"
         disks = $DisksList
         crashes_count = [int]$Crashes
-        windows_version = "$($OS.Caption)"
+        windows_version = if ($OS.Caption) { "$($OS.Caption)" } else { "Windows" }
         uptime_hours = [float]$UptimeHours
-    } | ConvertTo-Json -Depth 5
+    }
+
+    $PayloadJson = $DataObj | ConvertTo-Json -Depth 5
+    $Utf8Bytes = [System.Text.Encoding]::UTF8.GetBytes($PayloadJson)
 
     Write-Host "[*] ارسال داده‌ها به مغز کارشناسی هوش مصنوعی در سرور..." -ForegroundColor Cyan
 
-    $Response = Invoke-RestMethod -Uri $ServerUrl -Method Post -Body $Payload -ContentType "application/json; charset=utf-8"
+    $Response = Invoke-RestMethod -Uri $ServerUrl -Method Post -Body $Utf8Bytes -ContentType "application/json; charset=utf-8"
 
     if ($Response.success) {
-        Write-Host "`n[✓] نتیجه کارشناسی دریافت شد!" -ForegroundColor Green
+        Write-Host "`n==========================================================" -ForegroundColor Green
+        Write-Host "     [✓] نتیجه کارشناسی هوش مصنوعی با موفقیت دریافت شد!   " -ForegroundColor Green
+        Write-Host "==========================================================" -ForegroundColor Green
         Write-Host "    امتیاز سیستم: $($Response.score) از ۱۰۰" -ForegroundColor Yellow
+        Write-Host "    ارزیابی: $($Response.verdict_badge)" -ForegroundColor Cyan
         Write-Host "    نظر کارشناس: $($Response.verdict)" -ForegroundColor White
 
         # ذخیره و باز کردن گزارش شیک HTML
@@ -91,6 +97,7 @@ try {
         [System.IO.File]::WriteAllText($ReportPath, $Response.html_report, [System.Text.Encoding]::UTF8)
 
         Start-Process $ReportPath
+        Write-Host "`n[*] گزارش کامل در مرورگر شما باز شد: $ReportPath" -ForegroundColor Green
     } else {
         Write-Host "[X] سرور نتیجه را تایید نکرد." -ForegroundColor Red
     }
