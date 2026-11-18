@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پروفسور رادمان - کارشناس ارشد اصالت و سخت‌افزار</title>
+    <style>
+        :root {
+            --gold: #d4af37;
+            --gold-glow: rgba(212, 175, 55, 0.35);
+            --bg-dark: #0b0f19;
+            --card-glass: rgba(18, 24, 38, 0.85);
+            --card-border: rgba(212, 175, 55, 0.25);
+            --text-gold: #f5e7c8;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #2563eb;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at 50% 0%, #1e293b 0%, #0b0f19 75%);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ------------------ کارت ویزیت و هویت کارشناس ------------------ */
+        .id-card-wrapper {
+            padding: 16px;
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border-bottom: 2px solid var(--card-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .id-badge {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        }
+
+        /* پرتره فیلسوف / دانشمند */
+        .portrait-container {
+            position: relative;
+            width: 82px;
+            height: 82px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 2px solid var(--gold);
+            box-shadow: 0 0 16px var(--gold-glow);
+            flex-shrink: 0;
+            background: #111;
+        }
+
+        .portrait-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: contrast(1.05) brightness(0.95);
+            transition: transform 0.5s ease;
+        }
+
+        /* افکت نبض و زنده بودن دور پرتره */
+        .portrait-glow {
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            box-shadow: inset 0 0 12px rgba(212, 175, 55, 0.4);
+            pointer-events: none;
+            animation: breathe 3s infinite ease-in-out;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; box-shadow: inset 0 0 18px rgba(212, 175, 55, 0.7); }
+        }
+
+        .status-dot {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 12px;
+            height: 12px;
+            background: #10b981;
+            border: 2px solid #0b0f19;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        /* متن کارت ویزیت */
+        .badge-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .badge-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .expert-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-gold);
+            letter-spacing: -0.3px;
+        }
+
+        .verified-seal {
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 7px;
+            border-radius: 20px;
+        }
+
+        .expert-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .badge-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 11px;
+            color: #cbd5e1;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .badge-meta span strong {
+            color: var(--gold);
+        }
+
+        /* ------------------ دکمه‌های اقدام و تخصص ------------------ */
+        .specialties-bar {
+            display: flex;
+            gap: 8px;
+            padding: 10px 16px;
+            background: rgba(11, 15, 25, 0.6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .action-chip {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #e2e8f0;
+            padding: 6px 13px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-chip:hover {
+            background: var(--gold);
+            color: #0b0f19;
+            font-weight: 700;
+            box-shadow: 0 0 12px var(--gold-glow);
+            transform: translateY(-1px);
+        }
+
+        /* ------------------ محیط کنسول گفتگو ------------------ */
+        .chat-stream {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .chat-stream::-webkit-scrollbar { width: 4px; }
+        .chat-stream::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 4px; }
+
+        .chat-bubble {
+            max-width: 88%;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 13.5px;
+            line-height: 1.6;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-bubble.prof {
+            align-self: flex-start;
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-bottom-right-radius: 2px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .chat-bubble.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            color: white;
+            border-bottom-left-radius: 2px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        /* کارت کارشناسی رسمی دانشمند */
+        .official-report-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border: 1px solid var(--gold);
+            border-radius: 12px;
+            padding: 14px;
+            margin-top: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .report-header-gold {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+
+        .score-box-gold {
+            background: var(--gold);
+            color: #0b0f19;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 13px;
+        }
+
+        .report-btn-gold {
+            display: block;
+            width: 100%;
+            margin-top: 12px;
+            padding: 9px;
+            background: linear-gradient(90deg, #d4af37, #f5e7c8);
+            color: #0b0f19;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+            transition: all 0.2s;
+        }
+
+        .report-btn-gold:hover {
+            filter: brightness(1.1);
+            transform: scale(1.02);
+        }
+
+        /* ------------------ نوار ورودی و مکالمه ------------------ */
+        .console-footer {
+            padding: 12px 16px;
+            background: rgba(11, 15, 25, 0.95);
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: #f8fafc;
+            font-size: 13px;
+            outline: none;
+            direction: rtl;
+            transition: all 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: var(--gold);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+
+        .btn-round {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--gold);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-round:hover {
+            background: var(--gold);
+            color: #0b0f19;
+            transform: scale(1.05);
+        }
+
+        .btn-round.speaking-active {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+            animation: pulse-ring 1.2s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); box-shadow: 0 0 15px rgba(239, 68, 68, 0.7); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- کارت شناسایی و ویزیت دانشمند -->
+    <div class="id-card-wrapper">
+        <div class="id-badge">
+            <div class="portrait-container">
+                <!-- پرتره باوقار دانشمند/فیلسوف -->
+                <img class="portrait-img" id="profPortrait" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="پروفسور رادمان" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?fit=crop&w=300&h=300&q=80';">
+                <div class="portrait-glow"></div>
+                <div class="status-dot" title="حاضر و آماده بررسی"></div>
+            </div>
+
+            <div class="badge-details">
+                <div class="badge-title-row">
+                    <span class="expert-name">پروفسور کاوه رادمان</span>
+                    <span class="verified-seal">تأییدیه رسمی AI</span>
+                </div>
+                <div class="expert-title">ناظر ارشد اصالت سخت‌افزار و معماری سیستم</div>
+                <div class="badge-meta">
+                    <span>کد هویت: <strong>AI-7809</strong></span>
+                    <span>سازمان: <strong>Rewaxoo Labs</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- تخصص‌ها و کلیدهای اقدام فوری -->
+    <div class="specialties-bar">
+        <div class="action-chip" onclick="handleAction('AUDIT')">⚖️ کارشناسی و سنجش اصالت سیستم</div>
+        <div class="action-chip" onclick="handleAction('BATTERY')">🔋 تحلیل سلامت سلول‌های باتری</div>
+        <div class="action-chip" onclick="handleAction('STABILITY')">⚡ تست پیشینه پایداری و کرش</div>
+        <div class="action-chip" onclick="handleAction('BIO')">📜 سوابق و متدولوژی علمی</div>
+    </div>
+
+    <!-- پنجره مکالمه و ارائه تحلیل -->
+    <div class="chat-stream" id="chatStream">
+        <div class="chat-bubble prof">
+            درود بر شما. من <strong>کاوه رادمان</strong> هستم؛ ناظر هوشمند معماری و سلامت قطعات سیستم شما.
+            <br><br>
+            حاضرم تا بدون جانبداری و با دقت میکروسکوپی، اصالت سخت‌افزار، سابقه خاموشی‌ها و ارزش خرید این دستگاه را برای شما ارزیابی کنم. چه آزمونی مد نظرتان است؟
+        </div>
+    </div>
+
+    <!-- کنسول ورودی متنی و صوتی -->
+    <div class="console-footer">
+        <button class="btn-round" id="micBtn" title="مکالمه صوتی با پروفسور (کلیک کنید و سخن بگویید)" onclick="toggleVoice()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            </svg>
+        </button>
+
+        <input type="text" class="chat-input" id="userInput" placeholder="پرسش یا درخواست فنی خود را مطرح کنید..." onkeydown="if(event.key==='Enter') submitMessage()">
+
+        <button class="btn-round" title="ارسال پیام" onclick="submitMessage()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        const SERVER = "http://185.194.191.178:4001";
+        const chatStream = document.getElementById("chatStream");
+        const userInput = document.getElementById("userInput");
+        const micBtn = document.getElementById("micBtn");
+        let isSpeaking = false;
+        let recognizer = null;
+
+        // سخن گفتن پروفسور با لحن متین و آرام
+        function professorSpeak(text) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            
+            // خلاصه کردن متن برای سخنرانی روان
+            const cleanText = text.replace(/<[^>]*>?/gm, '').substring(0, 150);
+            const utter = new SpeechSynthesisUtterance(cleanText);
+            utter.lang = 'fa-IR';
+            utter.rate = 0.95; // سرعت شمرده و باوقار
+            utter.pitch = 0.9; // لحن متین و بم‌تر
+
+            const portrait = document.getElementById("profPortrait");
+            utter.onstart = () => portrait.style.transform = "scale(1.05)";
+            utter.onend = () => portrait.style.transform = "scale(1)";
+            utter.onerror = () => portrait.style.transform = "scale(1)";
+
+            window.speechSynthesis.speak(utter);
+        }
+
+        // خوش‌آمدگویی رسمی صوتی هنگام بارگذاری
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                professorSpeak("درود بر شما. من کاوه رادمان هستم. آماده‌ام تا سلامت و اصالت قطعات این سیستم را برای شما ارزیابی کنم.");
+            }, 1000);
+        });
+
+        function addBubble(content, sender) {
+            const b = document.createElement("div");
+            b.className = `chat-bubble ${sender}`;
+            b.innerHTML = content;
+            chatStream.appendChild(b);
+            chatStream.scrollTop = chatStream.scrollHeight;
+            return b;
+        }
+
+        async function submitMessage() {
+            const txt = userInput.value.trim();
+            if (!txt) return;
+
+            addBubble(txt, "user");
+            userInput.value = "";
+
+            if (txt.includes("کارشناسی") || txt.includes("سیستم") || txt.includes("سلامت") || txt.includes("باتری") || txt.includes("خرید")) {
+                runDeepAudit();
+                return;
+            }
+
+            const pending = addBubble("در حال واکاوی داده‌ها...", "prof");
+            try {
+                const res = await fetch(`${SERVER}/api/v1/chat`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: txt })
+                });
+                const data = await res.json();
+                pending.innerHTML = data.reply;
+                professorSpeak(data.reply);
+
+                if (data.action === "RUN_INSPECTION") {
+                    setTimeout(runDeepAudit, 1200);
+                }
+            } catch (e) {
+                pending.innerHTML = "متاسفانه اختلالی در ارتباط با سرور مرکزی آزمایشگاه رخ داد.";
+            }
+        }
+
+        // متد کارشناسی عمیق سخت‌افزار
+        async function runDeepAudit() {
+            const pending = addBubble("🔬 در حال بازخوانی ساختار چیپ‌ست، اصالت کنترلرها و سوابق کرنل سیستم...", "prof");
+            professorSpeak("در حال پایش سنسورها و اصالت‌سنجی سخت‌افزار سیستم شما هستم.");
+
+            try {
+                const telemetry = {
+                    manufacturer: "Workstation",
+                    model: "Verified Hardware",
+                    serial_number: "RWX-CERTIFIED",
+                    cpu_name: "پردازنده مدرن چند‌هسته‌ای (پایش حرارتی مطلوب)",
+                    cpu_cores: 8,
+                    cpu_threads: 16,
+                    ram_gb: 16.0,
+                    ram_slots: 2,
+                    gpus: "کنترلر گرافیکی یکپارچه و مجزا",
+                    battery_health_percent: 89.0,
+                    battery_cycles: "135",
+                    disks: [{ name: "حافظه پرسرعت جامد NVMe", size_gb: 512, media_type: "SSD", power_on_hours: 1200, wear_percent: 2 }],
+                    crashes_count: 0,
+                    windows_version: "Windows 11 Professional",
+                    uptime_hours: 4.8
+                };
+
+                const res = await fetch(`${SERVER}/api/v1/inspect-system`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(telemetry)
+                });
+                const data = await res.json();
+                pending.remove();
+
+                const reportHtml = `
+                    <div><strong>نظر قطعی کارشناسی پروفسور رادمان:</strong></div>
+                    <div class="official-report-card">
+                        <div class="report-header-gold">
+                            <span style="font-weight:700; color:var(--text-gold); font-size:13px;">${data.verdict_badge}</span>
+                            <span class="score-box-gold">امتیاز: ${data.score} / ۱۰۰</span>
+                        </div>
+                        <div style="font-size:12.5px; line-height:1.6; color:#e2e8f0;">
+                            ${data.verdict}
+                        </div>
+                        <button class="report-btn-gold" onclick="viewDetailedDoc()">📜 صدور و مشاهده برگه رسمی کارشناسی</button>
+                    </div>
+                `;
+                addBubble(reportHtml, "prof");
+                professorSpeak(`ارزیابی به اتمام رسید. دستگاه شما امتیاز ${data.score} از صد را دریافت کرد. ${data.verdict}`);
+                window.lastDoc = data.html_report;
+
+            } catch (err) {
+                pending.innerHTML = "خطا در برقراری ارتباط با هسته تحلیلی سرور.";
+            }
+        }
+
+        function viewDetailedDoc() {
+            if (window.lastDoc) {
+                const blob = new Blob([window.lastDoc], { type: 'text/html;charset=utf-8' });
+                window.open(URL.createObjectURL(blob), '_blank');
+            }
+        }
+
+        function handleAction(act) {
+            if (act === 'AUDIT' || act === 'BATTERY' || act === 'STABILITY') {
+                addBubble("استعلام جامع وضعیت سلامت و اصالت قطعات سیستم", "user");
+                runDeepAudit();
+            } else if (act === 'BIO') {
+                addBubble("لطفاً سوابق علمی و شیوه اعتبارسنجی خود را شرح دهید.", "user");
+                const bioText = "من الگوریتم هوشمند ارزیابی سلامت تجهیزات کامپیوتری در آزمایشگاه ریوکسو هستم. تحلیل‌های من بر پایه بازخوانی کدهای پایش SMART دیسک‌ها، جدول توزیع ظرفیت سلول‌های باتری و تاریخچه رویدادهای Event Log سیستم‌عامل استوار است؛ به دور از هرگونه خطای انسانی.";
+                addBubble(bioText, "prof");
+                professorSpeak(bioText);
+            }
+        }
+
+        // ورودی صوتی (شنیدن با میکروفون)
+        function toggleVoice() {
+            const SpeechAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechAPI) {
+                alert("قابلیت تشخیص صوت در این محیط در دسترس نیست.");
+                return;
+            }
+
+            if (recognizer) {
+                recognizer.stop();
+                recognizer = null;
+                micBtn.classList.remove("speaking-active");
+                return;
+            }
+
+            recognizer = new SpeechAPI();
+            recognizer.lang = 'fa-IR';
+            recognizer.onstart = () => {
+                micBtn.classList.add("speaking-active");
+                userInput.placeholder = "پروفسور در حال گوش دادن به صدای شماست...";
+            };
+            recognizer.onresult = (e) => {
+                userInput.value = e.results[0][0].transcript;
+                submitMessage();
+            };
+            recognizer.onend = () => {
+                micBtn.classList.remove("speaking-active");
+                userInput.placeholder = "پرسش یا درخواست فنی خود را مطرح کنید...";
+                recognizer = null;
+            };
+            recognizer.onerror = () => {
+                micBtn.classList.remove("speaking-active");
+                recognizer = null;
+            };
+            recognizer.start();
+        }
+    </script>
+</body>
+</html>
