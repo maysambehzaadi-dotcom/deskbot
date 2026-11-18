@@ -1,0 +1,5 @@
+{
+  "relay_url": "ws://185.194.191.178:4001/ws/device",
+  "device_id": "maysam-laptop-win11",
+  "require_approval_for_sensitive": true
+}
